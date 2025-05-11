@@ -8,7 +8,7 @@ import bitsIcon from '@assets/bits_icon.png';
 import Toast from '@components/Toast/Index';
 
 const ITEMS = {
-  'Heart': { id: 5, cost: 3, random: 1 },
+  'Heart': { id: 5, cost: 3 },
   'Fazoli\'s': { id: 4, cost: 2 },
   'Star': { id: 6, cost: 2 },
   'Beam Sword': { id: 7, cost: 2 },
@@ -52,6 +52,7 @@ const App = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [toastMessage, setToastMessage] = useState('');
   const [toastOpen, setToastOpen] = useState(false);
+  const [toastKlass, setToastKlass] = useState("bg-ssb-blue");
 
   const fetchWrapper = async (endpoint, options = {}) => {
     const baseUrl = process.env.API_URL;
@@ -69,21 +70,29 @@ const App = () => {
       }
     });
 
-    return response.json();
+    if (response.headers.get('content-type')?.includes('application/json') && response.headers.get('content-length') > 0) {
+      return response.json();
+    }
+    return true;
   };
 
   const fetchAndSetTokens = async () => {
+    setFetchingTokens(true);
     const tokens = await fetchWrapper(`/tokens?streamerId=${auth.current.channelId}`);
     setTokens(tokens);
+    setFetchingTokens(false);
   }
 
   useEffect(() => {
-    if (!window.Twitch || !window.Twitch.ext) {   
+    if (!window.Twitch || !window.Twitch.ext) {
       return;
     }
 
     window.Twitch.ext.bits.onTransactionComplete(transaction => {
-      setFetchingTokens(true);
+      setPurchaseModalOpen(false);
+      setToastMessage(`${getTokenAmount(transaction.product.sku)}x Tokens Purchased!`);
+      setToastKlass('bg-ssb-blue');
+      setToastOpen(true);
     });
 
     window.Twitch.ext.onAuthorized(async (_auth) => {
@@ -114,6 +123,14 @@ const App = () => {
 
   const spawnItem = async (id) => {
     const [itemName, item] = Object.entries(ITEMS).find(([_, item]) => item.id === id);
+
+    if (tokens.length < item.cost) {
+      setToastMessage(`You don't have enough tokens to spawn ${itemName}`);
+      setToastKlass('bg-ssb-red');
+      setToastOpen(true);
+      return;
+    }
+
     try {
       await fetchWrapper(`/redeem`, {
         method: 'POST',
@@ -125,11 +142,14 @@ const App = () => {
         })
       });
 
-      fetchAndSetTokens();
+      const newTokens = tokens.slice(item.cost);
+      setTokens(newTokens);
       setToastMessage(`${itemName} spawned!`);
       setToastOpen(true);
     } catch (error) {
-      console.error("Error spawning item:", error);
+      setToastMessage(`Error spawning ${itemName}`);
+      setToastKlass('bg-ssb-red');
+      setToastOpen(true);
     }
   };
 
@@ -207,9 +227,15 @@ const App = () => {
       <div className="flex justify-between mb-2">
         <div className="flex items-center">
           <img src={SFToken} alt="Smash Factory Token" className="token-icon" />
-          <div className="text-white text-xl font-bold">
-            : {tokens.length}
-          </div>
+          {fetchingTokens ? (
+            <div className="animate-spin w-6 h-6 border-2 border-ssb-blue border-t-transparent rounded-full" />
+          ) : (
+            <>
+              <div className="text-white text-xl font-bold">
+                : {tokens.length}
+              </div>
+            </>
+          )}
           <div className="ml-2 flex items-center cursor-pointer" onClick={fetchAndSetTokens}>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
               <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
@@ -243,20 +269,19 @@ const App = () => {
           </button>
         ))}
       </div>
-      <Modal isOpen={purchaseModalOpen} onClose={() => setPurchaseModalOpen(false)}>
-        <div className="flex flex-col items-center justify-center">
-          {(!fetchingTokens && products) &&
-            renderProducts()
-          }
-          {fetchingTokens &&
-            <div className="text-white">
-              Tokens are being added!
-            </div>
-          }
-        </div>
-      </Modal>
+      <div className={`${purchaseModalOpen ? "block" : "hidden"}`}>
+        <Modal isOpen={true} onClose={() => setPurchaseModalOpen(false)}>
+          <div className="flex flex-col items-center justify-center">
+            {renderProducts()}
+          </div>
+        </Modal>
+      </div>
       {toastOpen &&
-        <Toast message={toastMessage} onClose={() => setToastOpen(false)} />
+        <Toast
+          message={toastMessage}
+          onClose={() => { setToastOpen(false); setToastKlass("bg-ssb-blue"); }}
+          klass={toastKlass}
+        />
       }
     </div>
   );
