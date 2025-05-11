@@ -4,8 +4,38 @@
   "description": "Twitch panel extension for Smash Factory",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "webpack serve --mode development --hot",
+    "build": "rm -rfv ./dist/* && NODE_ENV=production webpack --mode production",
+    "watch": "webpack --watch --mode development",
+    "zip": "cd dist && zip -r ../smash_factory_extension_$(date +%Y%m%d_%H%M%S).zip ."
   },
+  "keywords": ["twitch", "extension", "panel"],
   "author": "Awdjob",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "@babel/core": "^7.26.10",
+    "@babel/preset-env": "^7.26.9",
+    "@babel/preset-react": "^7.26.3",
+    "babel-loader": "^10.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "webpack": "^5.99.7",
+    "webpack-cli": "^6.0.1"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.21",
+    "copy-webpack-plugin": "^12.0.2",
+    "css-loader": "^7.1.2",
+    "dotenv": "^16.4.5",
+    "file-loader": "^6.2.0",
+    "html-webpack-plugin": "^5.6.0",
+    "postcss": "^8.5.3",
+    "postcss-loader": "^8.1.1",
+    "tailwindcss": "^3.4.1",
+    "sass": "^1.87.0",
+    "sass-loader": "^16.0.5",
+    "style-loader": "^4.0.0",
+    "url-loader": "^4.1.1",
+    "webpack-dev-server": "^4.15.1"
+  }
 }

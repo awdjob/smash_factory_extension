@@ -1,0 +1,41 @@
+{
+  "manifest_version": 1,
+  "type": "panel",
+  "sdk_version": 2,
+  "version": "0.0.1",
+  "name": "Smash Factory Panel",
+  "viewer_summary": "View and purchase Smash Factory items with bits",
+  "author_name": "Awdjob",
+  "author_email": "",
+  "description": "A panel extension for Smash Factory that allows viewers to purchase items with bits",
+  "icon_urls": {
+    "100x100": "./assets/sf_logo.png"
+  },
+  "screenshots": [
+    {
+      "url": "./assets/sf_logo.png",
+      "description": "Main panel view"
+    }
+  ],
+  "view_count": 0,
+  "views": {
+    "panel": {
+      "viewer_url": "panel.html",
+      "height": 300,
+      "can_link_external_content": false
+    },
+    "config": {
+      "viewer_url": "config.html",
+      "height": 300
+    }
+  },
+  "permissions": [
+    "bits"
+  ],
+  "required_broadcaster_abilities": [],
+  "eula_tos_url": "",
+  "privacy_policy_url": "",
+  "vendor_code": "",
+  "whitelisted_config_urls": [],
+  "whitelisted_panel_urls": []
+} 

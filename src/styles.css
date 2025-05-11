@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.twitch-panel {
+  @apply p-5 text-white font-sans;
+}
+
+h1 {
+  @apply text-2xl mb-4 text-ssb-blue font-bold;
+}
+
+.button-primary {
+  @apply bg-ssb-blue text-white px-4 py-2 rounded font-semibold text-sm mt-2
+         hover:bg-ssb-orange transition-colors;
+}
+
+.purchase-button {
+  @apply bg-ssb-red text-white px-4 py-2 rounded font-semibold text-sm mt-2
+         hover:bg-ssb-blue active:bg-ssb-red transition-colors;
+}
+
+.button-default {
+  @apply bg-ssb-blue text-white px-4 py-2 rounded font-semibold text-sm mt-2
+         hover:bg-ssb-orange transition-colors;
+}
+
+input[type="range"] {
+  background:#30b6f969;
+}
+
+.token-icon {
+  width: 30px;
+  height: 30px;
+}
+
+.token-cost {
+  position:absolute;
+  left: 20px;
+  top: 13px;
+  text-shadow: 0 3px 1px #000;
+  transform: rotate(10deg);
+}
