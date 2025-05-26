@@ -53,6 +53,8 @@ const App = () => {
   const [toastMessage, setToastMessage] = useState('');
   const [toastOpen, setToastOpen] = useState(false);
   const [toastKlass, setToastKlass] = useState("bg-ssb-blue");
+  const [items, setItems] = useState([]);
+  const [loadingItems, setLoadingItems] = useState(false);
 
   const fetchWrapper = async (endpoint, options = {}) => {
     const baseUrl = process.env.API_URL;
@@ -77,10 +79,32 @@ const App = () => {
   };
 
   const fetchAndSetTokens = async () => {
-    setFetchingTokens(true);
-    const tokens = await fetchWrapper(`/tokens?streamerId=${auth.current.channelId}`);
-    setTokens(tokens);
-    setFetchingTokens(false);
+    try {
+      setFetchingTokens(true);
+      const tokens = await fetchWrapper(`/tokens?streamerId=${auth.current.channelId}`);
+      setTokens(tokens);
+      setFetchingTokens(false);
+    } catch (error) {
+      console.error("Error fetching tokens:", error);
+      setToastMessage("Error fetching tokens");
+      setToastKlass("bg-ssb-red");
+      setToastOpen(true);
+    }
+  }
+
+  const fetchAndSetItems = async () => {
+    try {
+      setLoadingItems(true);
+      const items = await fetchWrapper(`/items?streamerId=${auth.current.channelId}`);
+      setItems(items);
+    } catch (error) {
+      console.error("Error fetching items:", error);
+      setToastMessage("Error fetching items");
+      setToastKlass("bg-ssb-red");
+      setToastOpen(true);
+    } finally {
+      setLoadingItems(false);
+    }
   }
 
   useEffect(() => {
@@ -99,6 +123,7 @@ const App = () => {
       auth.current = _auth;
       setIsLoading(false);
       fetchAndSetTokens();
+      fetchAndSetItems();
     });
 
     if (!products) {
@@ -110,7 +135,6 @@ const App = () => {
         console.error("Error fetching products:", error);
       }
     }
-
   }, []);
 
   const openPurchaseModal = async (sku) => {
@@ -249,22 +273,32 @@ const App = () => {
         </div>
       </div>
 
+      {loadingItems &&
+        <div className="flex flex-col justify-center items-center">
+          <div className="animate-spin w-6 h-6 border-2 border-ssb-blue border-t-transparent rounded-full" />
+          <div className="text-white">
+            Loading Items...
+          </div>
+        </div>
+      }
+
       <div className="flex flex-wrap gap-4 justify-center">
-        {Object.entries(ITEMS).map(([name, { cost, id }]) => (
+        {items.map((item) => (
           <button
-            key={name}
-            onClick={() => spawnItem(id)}
+            key={item.name}
+            onClick={() => spawnItem(item.id)}
+            disabled={!item.enabled}
             className="flex flex-col items-center bg-ssb-dark-blue/80 rounded-lg p-4 shadow-md hover:bg-ssb-dark-blue/60 transition-colors w-36"
           >
             <img
-              src={`./assets/item_icons/${id}.png`}
-              alt={name}
+              src={`./assets/item_icons/${item.itemId}.png`}
+              alt={item.name}
               className="w-12 h-12 mb-2"
             />
-            <span className="text-white font-semibold mb-1">{name}</span>
+            <span className="text-white font-semibold mb-1">{item.name}</span>
             <div className="flex items-center mt-1">
               <img src={SFToken} alt="Token" className="w-5 h-5 mr-1" />
-              <span className="text-ssb-blue font-bold">{cost}x</span>
+              <span className="text-ssb-blue font-bold">{item.price || 'N/A'}x</span>
             </div>
           </button>
         ))}
