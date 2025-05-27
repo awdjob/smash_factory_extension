@@ -122,8 +122,12 @@ const App = () => {
     window.Twitch.ext.onAuthorized(async (_auth) => {
       auth.current = _auth;
       setIsLoading(false);
-      fetchAndSetTokens();
-      fetchAndSetItems();
+      if (items.length === 0) {
+        fetchAndSetItems();
+      }
+      if (tokens.length === 0) {
+        fetchAndSetTokens();
+      }
     });
 
     if (!products) {
@@ -202,7 +206,7 @@ const App = () => {
                 className="bits-icon w-1/2 ml-2"
               />
               <div className="token-cost">
-                {product.cost.amount}x
+                {product.cost.amount}
               </div>
             </div>
           </div>
@@ -288,7 +292,7 @@ const App = () => {
             key={item.name}
             onClick={() => spawnItem(item.id)}
             disabled={!item.enabled}
-            className="flex flex-col items-center bg-ssb-dark-blue/80 rounded-lg p-4 shadow-md hover:bg-ssb-dark-blue/60 transition-colors w-36"
+            className="flex flex-col items-center bg-ssb-dark-blue/80 rounded-lg p-4 shadow-md hover:bg-ssb-dark-blue/60 transition-colors w-36 disabled:opacity-50"
           >
             <img
               src={`./assets/item_icons/${item.itemId}.png`}
@@ -298,7 +302,7 @@ const App = () => {
             <span className="text-white font-semibold mb-1">{item.name}</span>
             <div className="flex items-center mt-1">
               <img src={SFToken} alt="Token" className="w-5 h-5 mr-1" />
-              <span className="text-ssb-blue font-bold">{item.price || 'N/A'}x</span>
+              <span className="text-ssb-blue font-bold">{`${item.price ? `${item.price}x` : 'N/A'}`}</span>
             </div>
           </button>
         ))}
