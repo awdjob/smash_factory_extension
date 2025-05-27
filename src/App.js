@@ -7,29 +7,6 @@ import bitsIcon from '@assets/bits_icon.png';
 
 import Toast from '@components/Toast/Index';
 
-const ITEMS = {
-  'Heart': { id: 5, cost: 3 },
-  'Fazoli\'s': { id: 4, cost: 2 },
-  'Star': { id: 6, cost: 2 },
-  'Beam Sword': { id: 7, cost: 2 },
-  'Bat': { id: 8, cost: 2 },
-  'Fan': { id: 9, cost: 1 },
-  'Wand': { id: 10, cost: 2 },
-  'Ray Gun': { id: 11, cost: 2 },
-  'Fire Flower': { id: 12, cost: 1 },
-  'Hammer': { id: 13, cost: 3 },
-  'Motion Sensor Bomb': { id: 14, cost: 2 },
-  'Bob-omb': { id: 15, cost: 2 },
-  'Bumper': { id: 16, cost: 1 },
-  'Green Shell': { id: 17, cost: 1 },
-  'Red Shell': { id: 18, cost: 2 },
-  'Live Onyx': { id: 32, cost: 2 },
-  'Live Snorlax': { id: 33, cost: 3 },
-  'Blue Shell': { id: 48, cost: 3 },
-  'Franklin Badge': { id: 51, cost: 2 },
-  'Golden Gun': { id: 53, cost: 3 }
-};
-
 const getTokenAmount = (sku) => {
   // Extract the number from the SKU (e.g., "sf_token_5" => 5)
   const match = sku.match(/sf_token_(\d+)/);
@@ -150,10 +127,10 @@ const App = () => {
   };
 
   const spawnItem = async (id) => {
-    const [itemName, item] = Object.entries(ITEMS).find(([_, item]) => item.id === id);
+    const item = items.find((item) => item.id === id);
 
     if (tokens.length < item.cost) {
-      setToastMessage(`You don't have enough tokens to spawn ${itemName}`);
+      setToastMessage(`You don't have enough tokens to spawn ${item.name}`);
       setToastKlass('bg-ssb-red');
       setToastOpen(true);
       return;
