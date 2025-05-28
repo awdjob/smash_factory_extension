@@ -36,7 +36,7 @@ input[type="range"] {
 
 .token-cost {
   position:absolute;
-  left: 20px;
+  left: 10px;
   top: 13px;
   text-shadow: 0 3px 1px #000;
   transform: rotate(10deg);

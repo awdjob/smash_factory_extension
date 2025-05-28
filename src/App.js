@@ -8,8 +8,7 @@ import bitsIcon from '@assets/bits_icon.png';
 import Toast from '@components/Toast/Index';
 
 const getTokenAmount = (sku) => {
-  // Extract the number from the SKU (e.g., "sf_token_5" => 5)
-  const match = sku.match(/sf_token_(\d+)/);
+  const match = sku.match(/(\d+)_tokens/);
   return match ? parseInt(match[1], 10) : 1;
 };
 
@@ -21,7 +20,7 @@ const sortedProducts = (products) => {
 
 const App = () => {
   const [xValue, setXValue] = useState(0);
-  const [tokens, setTokens] = useState(0);
+  const [tokens, setTokens] = useState([]);
   const [purchaseModalOpen, setPurchaseModalOpen] = useState(false);
   const [products, setProducts] = useState(null);
   const [fetchingTokens, setFetchingTokens] = useState(false);
@@ -126,10 +125,10 @@ const App = () => {
     window.Twitch.ext.bits.useBits(sku);
   };
 
-  const spawnItem = async (id) => {
-    const item = items.find((item) => item.id === id);
+  const spawnItem = async (itemId) => {
+    const item = items.find((item) => item.itemId === itemId);
 
-    if (tokens.length < item.cost) {
+    if (tokens.length < item.price) {
       setToastMessage(`You don't have enough tokens to spawn ${item.name}`);
       setToastKlass('bg-ssb-red');
       setToastOpen(true);
@@ -140,19 +139,19 @@ const App = () => {
       await fetchWrapper(`/redeem`, {
         method: 'POST',
         body: JSON.stringify({
-          tokenIds: tokens.slice(0, item.cost).map(token => token._id),
-          itemId: item.id,
+          tokenIds: tokens.slice(0, item.price).map(token => token._id),
+          itemId: item.itemId,
           streamerId: auth.current.channelId,
           xCoord: xValue
         })
       });
 
-      const newTokens = tokens.slice(item.cost);
+      const newTokens = tokens.slice(item.price);
       setTokens(newTokens);
-      setToastMessage(`${itemName} spawned!`);
+      setToastMessage(`${item.name} spawned!`);
       setToastOpen(true);
     } catch (error) {
-      setToastMessage(`Error spawning ${itemName}`);
+      setToastMessage(`Error spawning ${item.name}`);
       setToastKlass('bg-ssb-red');
       setToastOpen(true);
     }
@@ -183,7 +182,7 @@ const App = () => {
                 className="bits-icon w-1/2 ml-2"
               />
               <div className="token-cost">
-                {product.cost.amount}
+                {product.cost.amount}x
               </div>
             </div>
           </div>
@@ -267,7 +266,7 @@ const App = () => {
         {items.map((item) => (
           <button
             key={item.name}
-            onClick={() => spawnItem(item.id)}
+            onClick={() => spawnItem(item.itemId)}
             disabled={!item.enabled}
             className="flex flex-col items-center bg-ssb-dark-blue/80 rounded-lg p-4 shadow-md hover:bg-ssb-dark-blue/60 transition-colors w-36 disabled:opacity-50"
           >
@@ -287,7 +286,7 @@ const App = () => {
       <div className={`${purchaseModalOpen ? "block" : "hidden"}`}>
         <Modal isOpen={true} onClose={() => setPurchaseModalOpen(false)}>
           <div className="flex flex-col items-center justify-center">
-            {renderProducts()}
+            {products && renderProducts()}
           </div>
         </Modal>
       </div>
